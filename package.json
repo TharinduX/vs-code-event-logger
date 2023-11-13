@@ -1,7 +1,13 @@
 {
-  "name": "vs-code-telemetry-api",
-  "displayName": "VS Code Telemetry API",
-  "description": "",
+  "name": "vs-code-rest-api-integration",
+  "displayName": "VS Code Rest API Integration",
+  "description": "A simple extention that send telemtry events to a rest API",
+  "publisher": "TharinduX",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TharinduX/VS-Code-Rest-API"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
@@ -14,12 +20,7 @@
   ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "extension.switchFile",
-        "title": "Switch File"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "lint": "eslint .",
