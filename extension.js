@@ -46,6 +46,19 @@ async function activate(context) {
   }
 }
 
+async function deactivate() {
+  const endTime = new Date();
+  const eventName = 'sessionEnded';
+  const body = JSON.stringify({ eventName, data: { endTime: endTime } });
+  try {
+    await axios.post(apiUrl, body, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function confirmAndSendTelemetryEvent(fileLocation, checkResponse) {
   if (!checkResponse.data.profile.valid) {
     vscode.window.showErrorMessage(
@@ -133,4 +146,5 @@ async function sendTelemetryEvent(apiUrl, eventName, data) {
 
 module.exports = {
   activate,
+  deactivate,
 };
