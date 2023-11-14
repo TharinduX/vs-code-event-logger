@@ -14,7 +14,7 @@ let eventBody = {
 
 async function activate(context) {
   const fileLocation = vscode.Uri.joinPath(context.extensionUri, 'data.json');
-
+  // Check if the extension is enabled
   try {
     // Check if data.json exists
     const fileExists = await vscode.workspace.fs.stat(fileLocation).then(
@@ -28,7 +28,6 @@ async function activate(context) {
       const storedData = JSON.parse(dataBuffer.toString());
       apiKey = storedData.apiKey;
       apiUrl = storedData.apiUrl;
-
       // Checking the validity of the stored API key
       const checkResponse = await checkValidityAPI(apiKey);
       await confirmAndSendTelemetryEvent(fileLocation, checkResponse);
@@ -50,6 +49,12 @@ async function activate(context) {
       'Error reading data.json. Please check the extension logs.'
     );
   }
+}
+
+async function isThisEnabled() {
+  const checkUrl = `https://vscode.tharindu.me/extension/enabled/${apiKey}`;
+  const enabled = await axios.get(checkUrl);
+  return enabled.data.enabled;
 }
 
 async function deactivate() {
@@ -78,29 +83,35 @@ async function confirmAndSendTelemetryEvent(fileLocation, checkResponse) {
     const dataBuffer = Buffer.from(JSON.stringify(dataToStore), 'utf8');
     await vscode.workspace.fs.writeFile(fileLocation, dataBuffer);
 
-    //Send start session event
-    vscode.window.showInformationMessage('Sending events to: ' + newUrl);
-    const startTime = new Date();
-    sendTelemetryEvent(newUrl, 'sessionStarted', { startTime });
-    sessionActive = true;
+    if (checkResponse.data.profile.data.enabled) {
+      //Send start session event
+      vscode.window.showInformationMessage('Sending events to: ' + newUrl);
+      const startTime = new Date();
+      sendTelemetryEvent(newUrl, 'sessionStarted', { startTime });
+      sessionActive = true;
 
-    //Listen for changes in the active text editor
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor) {
-        const activeFile = path.basename(editor.document.fileName);
-        const timeSwitched = new Date();
-        sendTelemetryEvent(newUrl, 'fileSwitched', {
-          activeFile,
-          timeSwitched,
-        });
-      }
-    });
+      //Listen for changes in the active text editor
+      vscode.window.onDidChangeActiveTextEditor((editor) => {
+        if (editor) {
+          const activeFile = path.basename(editor.document.fileName);
+          const timeSwitched = new Date();
+          sendTelemetryEvent(newUrl, 'fileSwitched', {
+            activeFile,
+            timeSwitched,
+          });
+        }
+      });
+    } else {
+      vscode.window.showInformationMessage(
+        'Extension is disabled. Please enable it from vscode.tharindu.me'
+      );
+    }
   }
   return;
 }
 
 async function checkValidityAPI(apiKey) {
-  const checkUrl = `https://tharindu-ljzeuswiv-tharindux.vercel.app/api/check/${apiKey}`;
+  const checkUrl = `https://vscode.tharindu.me/api/check/${apiKey}`;
 
   try {
     const checkResponse = await axios.get(checkUrl);
