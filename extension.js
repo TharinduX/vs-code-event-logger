@@ -6,6 +6,12 @@ let sessionActive = false;
 let apiKey = '';
 let apiUrl = '';
 
+let eventBody = {
+  sessionStarted: null,
+  activeFile: null,
+  sessionEnded: null,
+};
+
 async function activate(context) {
   const fileLocation = vscode.Uri.joinPath(context.extensionUri, 'data.json');
 
@@ -48,15 +54,7 @@ async function activate(context) {
 
 async function deactivate() {
   const endTime = new Date();
-  const eventName = 'sessionEnded';
-  const body = JSON.stringify({ eventName, data: { endTime: endTime } });
-  try {
-    await axios.post(apiUrl, body, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  await sendTelemetryEvent(apiUrl, 'sessionEnded', { endTime });
 }
 
 async function confirmAndSendTelemetryEvent(fileLocation, checkResponse) {
@@ -102,7 +100,7 @@ async function confirmAndSendTelemetryEvent(fileLocation, checkResponse) {
 }
 
 async function checkValidityAPI(apiKey) {
-  const checkUrl = `http://localhost:3000/api/check/${apiKey}`;
+  const checkUrl = `https://tharindu-ljzeuswiv-tharindux.vercel.app/api/check/${apiKey}`;
 
   try {
     const checkResponse = await axios.get(checkUrl);
@@ -131,9 +129,30 @@ async function sendTelemetryEvent(apiUrl, eventName, data) {
     );
     return;
   }
-  const body = JSON.stringify({ eventName, data });
+
+  switch (eventName) {
+    case 'sessionStarted':
+      eventBody.sessionStarted = { valid: true, time: data.startTime };
+      break;
+
+    case 'fileSwitched':
+      eventBody.activeFile = {
+        valid: true,
+        name: data.activeFile,
+        time: data.timeSwitched,
+      };
+      break;
+
+    case 'sessionEnded':
+      eventBody.sessionEnded = { valid: true, time: data.endTime };
+      break;
+
+    default:
+      break;
+  }
+
   try {
-    const response = await axios.post(apiUrl, body, {
+    const response = await axios.post(apiUrl, eventBody, {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
