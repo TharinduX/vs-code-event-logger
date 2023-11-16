@@ -14,7 +14,6 @@ let eventBody = {
 
 async function activate(context) {
   const fileLocation = vscode.Uri.joinPath(context.extensionUri, 'data.json');
-  // Check if the extension is enabled
   try {
     // Check if data.json exists
     const fileExists = await vscode.workspace.fs.stat(fileLocation).then(
@@ -51,12 +50,6 @@ async function activate(context) {
   }
 }
 
-async function isThisEnabled() {
-  const checkUrl = `https://vscode.tharindu.me/extension/enabled/${apiKey}`;
-  const enabled = await axios.get(checkUrl);
-  return enabled.data.enabled;
-}
-
 async function deactivate() {
   const endTime = new Date();
   await sendTelemetryEvent(apiUrl, 'sessionEnded', { endTime });
@@ -85,7 +78,6 @@ async function confirmAndSendTelemetryEvent(fileLocation, checkResponse) {
 
     if (checkResponse.data.profile.data.enabled) {
       //Send start session event
-      vscode.window.showInformationMessage('Sending events to: ' + newUrl);
       const startTime = new Date();
       sendTelemetryEvent(newUrl, 'sessionStarted', { startTime });
       sessionActive = true;

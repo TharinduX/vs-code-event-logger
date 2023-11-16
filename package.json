@@ -1,12 +1,12 @@
 {
-  "name": "vs-code-rest-api-integration",
-  "displayName": "VS Code Rest API Integration",
-  "description": "A simple extention that send telemtry events to a rest API",
+  "name": "event-logger",
+  "displayName": "Event Logger",
+  "description": "A simple extention to get VS Code events to an api",
   "publisher": "TharinduX",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TharinduX/vs-code-rest-api"
+    "url": "https://github.com/TharinduX/vs-code-event-logger"
   },
   "version": "0.0.1",
   "engines": {
@@ -41,8 +41,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@vscode/extension-telemetry": "^0.9.0",
-    "axios": "^1.6.1",
-    "node-fetch": "^3.3.2"
+    "axios": "^1.6.1"
   }
 }
