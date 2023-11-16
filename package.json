@@ -4,6 +4,7 @@
   "description": "A simple extention to get VS Code events to an api",
   "publisher": "TharinduX",
   "license": "MIT",
+  "icon": "images/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/TharinduX/vs-code-event-logger"
